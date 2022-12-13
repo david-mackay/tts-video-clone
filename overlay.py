@@ -119,4 +119,4 @@ def overlay_text_on_video2(input_video, string):
   video.release()
   cv2.destroyAllWindows()
 
-overlay_text_on_video("sampleparkour.webm", "This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test.")
+overlay_text_on_video2("sampleparkour.webm", "This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test. This is a test. This is another test.")

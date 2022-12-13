@@ -1,10 +1,15 @@
 import cv2
 import time
 import numpy as np
+import textwrap
+from math import ceil
+from video_processing.separate_sentences import *
+from content_generation.text_grabber import grab_top_posts
+
 
 def overlay_strings_on_video(input_vid, strings, durations):
-  # Open the video file
   video = cv2.VideoCapture(input_vid)
+  print(durations)
 
   # Loop through the strings and durations
   for string, duration in zip(strings, durations):
@@ -26,15 +31,35 @@ def overlay_strings_on_video(input_vid, strings, durations):
       # Create a black image with the same size as the frame
       overlay = np.zeros((height, width, 3), dtype="uint8")
 
-      # Get the size of the text
-      text_width, text_height = cv2.getTextSize(string, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+      # Wrap the text to a maximum width
+      wrap_width = 50
+      wrapped_text = textwrap.wrap(string, wrap_width)
 
       # Calculate the coordinates of the text
-      x = (width - text_width) // 2
-      y = (height - text_height) // 2
+      text_width, text_height = cv2.getTextSize(string, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
 
-      # Draw the text on the black image
-      cv2.putText(overlay, string, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+      # Keep track of the longest line of text in the wrapped text
+      max_line_width = 0
+      total_text_height = 0
+      # Loop through the wrapped text and calculate the longest line
+      for line in wrapped_text:
+        line_width, _ = cv2.getTextSize(line, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+        _, line_height = cv2.getTextSize(line, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+        total_text_height += line_height
+
+        max_line_width = max(max_line_width, line_width)
+
+      # Calculate the x coordinate based on the width of the longest line
+      x = (width - max_line_width) // 2
+
+      # Calculate the y coordinate based on the total height of the wrapped text
+      y = (height - total_text_height) // 2
+
+      # Draw the wrapped text on the overlay
+      for line in wrapped_text:
+        cv2.putText(overlay, line, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        y += line_height
+
 
       # Overlay the text on the frame
       frame = cv2.addWeighted(overlay, 0.5, frame, 0.5, 0)
@@ -46,6 +71,8 @@ def overlay_strings_on_video(input_vid, strings, durations):
   # Release the video capture
   video.release()
 
+
+
 from gtts import gTTS
 
 def text_to_speech(string_list):
@@ -55,12 +82,6 @@ def text_to_speech(string_list):
         tts_list.append(tts)
     return tts_list
 
-from playsound import playsound
-
-
-string_list = ["Hello i am testing the sound"]
-# Generate text-to-speech instances
-from pydub import AudioSegment
 
 def calculate_duration(tts_list):
     durations = []
@@ -76,5 +97,7 @@ def calculate_duration(tts_list):
 
 
 def duration_fn(sentence):
-  return 5*len(sentence)
-# overlay_strings_on_video("sampleparkour.webm", ["Sentence 1.", "Sentence 2."], [5,5])
+  return ceil(0.4*len(sentence.split(" ")))
+
+sentences = split_on_new_lines(separate_string(grab_top_posts("WritingPrompts", 4)))
+overlay_strings_on_video("sampleparkour.webm", sentences, [duration_fn(x) for x in sentences])

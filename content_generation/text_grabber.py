@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from video_processing.separate_sentences import separate_string, split_on_new_lines
 import re
 
 client_id = "nBNUFySa1GTQOQBaITmgUA"
@@ -15,8 +16,8 @@ def grab_top_posts(subreddit, top_num):
     reddit_read_only = praw.Reddit(client_id=client_id,		 # your client id
 							client_secret=secret,	 # your client secret
 							user_agent=user_agent)	 # your user agent
-
-    subreddit = reddit_read_only.subreddit("WritingPrompts")
+    s = ""
+    subreddit = reddit_read_only.subreddit(subreddit)
     num_posts =0
     for post in subreddit.hot(limit=top_num):
         
@@ -31,10 +32,11 @@ def grab_top_posts(subreddit, top_num):
             i+=1
             if i > 1 :
                 continue
-            print(f"Story {i} written by {comment.author}")
+            s += f"Story {i} written by {comment.author}. "
             story = _censor(comment.body)
-            print(story)
-        print(num_posts)
+            s+= story
+        print(f"Number of posts processed: {num_posts}")
+        return s
 
 def count_sentences(string):
   sentences = re.split(r"\.+", string)
@@ -58,5 +60,3 @@ def _censor(text):
   censored_text = re.sub(r"\b(" + "|".join(replacements.keys()) + r")\b", lambda m: replacements[m.group(0)], text)
   
   return censored_text
-
-grab_top_posts("WritingPrompts", 3)
