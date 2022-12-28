@@ -20,9 +20,11 @@ def grab_top_posts(subreddit, top_num):
     subreddit = reddit_read_only.subreddit(subreddit)
     num_posts =0
     for post in subreddit.hot(limit=top_num):
-        
-        if "[WP]" not in post.title:
-            continue
+        if num_posts == 0:
+          num_posts +=1
+          continue
+        # if "[WP]" not in post.title:
+        #     continue
         num_posts += 1
         print(post.title)
         i=0
@@ -33,10 +35,11 @@ def grab_top_posts(subreddit, top_num):
             if i > 1 :
                 continue
             s += f"Story {i} written by {comment.author}. "
-            story = _censor(comment.body)
-            s+= story
+            # story = _censor(comment.body)
+            s+= comment.body
+            print(comment.body)
         print(f"Number of posts processed: {num_posts}")
-        return s
+    return s
 
 def count_sentences(string):
   sentences = re.split(r"\.+", string)

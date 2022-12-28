@@ -15,9 +15,3 @@ def split_on_new_lines(strings):
   return list(filter(None, split_strings))
 
 
-
-
-import pyttsx3
-engine = pyttsx3.init()
-engine.say('Good morning.')
-engine.runAndWait()
