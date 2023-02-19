@@ -13,6 +13,8 @@ parser.add_argument('-o', '--output_vid', type=str, help='file path to the outpu
 parser.add_argument('-d', '--duration', type=str, help='file path to the duration speechmarks file')
 parser.add_argument('-l', '--length', type=int, help='total_length in ms')
 args = parser.parse_args()
+
+
 def overlay_strings(input_vid, output_vid, strings, durations):
     video = cv2.VideoCapture(input_vid)
     frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -45,15 +47,15 @@ def overlay_strings(input_vid, output_vid, strings, durations):
             wrapped_text = textwrap.wrap(string, wrap_width)
 
             # Calculate the coordinates of the text
-            text_width, text_height = cv2.getTextSize(string, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+            text_width, text_height = cv2.getTextSize(string, cv2.FONT_HERSHEY_TRIPLEX, 1.5, 2)[0]
 
             # Keep track of the longest line of text in the wrapped text
             max_line_width = 0
             total_text_height = 0
             # Loop through the wrapped text and calculate the longest line
             for line in wrapped_text:
-                line_width, _ = cv2.getTextSize(line, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
-                _, line_height = cv2.getTextSize(line, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+                line_width, _ = cv2.getTextSize(line, cv2.FONT_HERSHEY_TRIPLEX, 1.5, 2)[0]
+                _, line_height = cv2.getTextSize(line, cv2.FONT_HERSHEY_TRIPLEX, 1.5, 2)[0]
                 total_text_height += line_height
 
                 max_line_width = max(max_line_width, line_width)
@@ -66,18 +68,20 @@ def overlay_strings(input_vid, output_vid, strings, durations):
 
             # Draw the wrapped text on the overlay
             for line in wrapped_text:
-                _, line_height = cv2.getTextSize(line, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
-                cv2.putText(overlay, line, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                _, line_height = cv2.getTextSize(line, cv2.FONT_HERSHEY_TRIPLEX, 1.5, 2)[0]
+                cv2.putText(overlay, line, (x, y), cv2.FONT_HERSHEY_TRIPLEX, 1.5, (255, 255, 255), 2)
                 y += line_height + 10
 
             # Overlay the text on the frame
-            frame = cv2.addWeighted(overlay, 0.5, frame, 0.5, 0)
+            frame = cv2.addWeighted(overlay, 0.75, frame, 0.5, 0)
 
             out.write(frame)
 
         # Release the video capture and VideoWriter objects
     video.release()
     out.release()
+    return 0
+
 
 durations, strings = get_durations_from_speechmarks(args.duration, args.length)
 overlay_strings(args.input_vid, args.output_vid, strings, durations)
